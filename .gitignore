@@ -77,3 +77,4 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 *.log
 **/Intermediate/*
+**/Saved/*
