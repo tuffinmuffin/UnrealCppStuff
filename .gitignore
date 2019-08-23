@@ -78,3 +78,5 @@ DerivedDataCache/*
 *.log
 **/Intermediate/*
 **/Saved/*
+ch3/BulidingEscape/Binaries/
+ch3/BulidingEscape/Content/StarterContent/
