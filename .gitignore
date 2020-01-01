@@ -79,4 +79,5 @@ DerivedDataCache/*
 **/Intermediate/*
 **/Saved/*
 ch3/BulidingEscape/Binaries/
-ch3/BulidingEscape/Content/StarterContent/
+ch3/BulidingEscape/Content/StarterContent/Textures
+ch3/BulidingEscape/Content/StarterContent/HDRI

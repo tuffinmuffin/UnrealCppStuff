@@ -1,5 +1,10 @@
 // Its a demo app.
 
+#include <Engine/World.h>
+#include <GameFramework/PlayerController.h>
+
+#include "GameFramework/Actor.h"
+#include "DrawDebugHelpers.h"
 
 #include "Grabber.h"
 
@@ -20,7 +25,6 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(GrabberLog, Warning, TEXT("Grabber here"));
 
 	// ...
 	
@@ -32,6 +36,29 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	//Get player view point
+	FVector playerLocation;
+	FRotator playerRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(playerLocation, playerRotation);
+
+	//Draw a red trace
+	FVector lineTraceEnd = playerLocation + playerRotation.Vector() * Reach;
+	DrawDebugLine(
+		GetWorld(),
+		playerLocation,
+		lineTraceEnd,
+		FColor(0xFF0000),
+		false,
+		0.0f,
+		0,
+		5.0f
+	);
+
+	//UE_LOG(GrabberLog, Verbose, TEXT("Player Vector: %s"), *playerLocation.ToString());
+	//UE_LOG(GrabberLog, Verbose, TEXT("Player Rotation: %s"), *playerRotation.ToString());
+	//ray cast to reach distance
+
+
+	//determine what is in range
 }
 
