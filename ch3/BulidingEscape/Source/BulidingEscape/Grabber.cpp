@@ -1,12 +1,11 @@
-// Its a demo app.
+// Grabber class to manulpate world objects
+#include "Grabber.h"
 
 #include <Engine/World.h>
 #include <GameFramework/PlayerController.h>
 
 #include "GameFramework/Actor.h"
 #include "DrawDebugHelpers.h"
-
-#include "Grabber.h"
 
 DEFINE_LOG_CATEGORY(GrabberLog);
 
@@ -56,8 +55,25 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	//UE_LOG(GrabberLog, Verbose, TEXT("Player Vector: %s"), *playerLocation.ToString());
 	//UE_LOG(GrabberLog, Verbose, TEXT("Player Rotation: %s"), *playerRotation.ToString());
-	//ray cast to reach distance
+	//ray cast (line trace) to reach distance
 
+	FHitResult hitResult;
+	FCollisionQueryParams traceParams(FName("Grabber"), false, GetOwner());
+	FCollisionObjectQueryParams
+	//
+
+	bool hitFound = GetWorld()->LineTraceSingleByObjectType(
+		hitResult,
+		playerLocation,
+		lineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		traceParams
+		);
+
+	if (hitFound)
+	{
+		UE_LOG(GrabberLog, Warning, TEXT("Found Hit: %s"), *hitResult.GetActor()->GetName());
+	}
 
 	//determine what is in range
 }
