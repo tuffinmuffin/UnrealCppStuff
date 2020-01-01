@@ -9,6 +9,9 @@ public class BulidingEscapeTarget : TargetRules
 	{
 		Type = TargetType.Game;
 
+        bUseUnityBuild = false;
+        bUsePCHFiles = false;
+
 		ExtraModuleNames.AddRange( new string[] { "BulidingEscape" } );
 	}
 }
