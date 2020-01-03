@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/InputComponent.h"
 #include "Logging/LogMacros.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+
 #include "Grabber.generated.h"
 
 //General Log
@@ -30,5 +33,25 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	float Reach = 100.0f;
+	UPROPERTY(EditAnywhere)
+	bool EnableDebug = false;
+	
+	UInputComponent* InputHandle = nullptr;
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+
+	//Ray-cast and grab what is in reach
+	void Grab();
+
+	//Release a grabbed obj
+	void Release();
+
+	//Get ray-cast vector for grabbing
+	void GetGrabberVector(FVector& start, FVector& end);
+
+	//Draw debug line when debugging enabled
+	void DrawDebugGrabber();
+
+	void BindInputActions();
+	void FindPhysicsHandleComponent();
 
 };

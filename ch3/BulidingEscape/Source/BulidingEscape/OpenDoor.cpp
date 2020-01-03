@@ -4,6 +4,7 @@
 #include "OpenDoor.h"
 #include <Engine/World.h>
 #include <GameFramework/PlayerController.h>
+#include "Components/PrimitiveComponent.h"
 
 #include "GameFramework/Actor.h"
 
@@ -24,7 +25,15 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 	Owner = GetOwner();
 	World = GetWorld();
-	ActorThatOpens = World->GetFirstPlayerController()->GetPawn();
+
+	check(Owner);
+	check(World);
+
+	if (!PressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PressurePlate is null"));
+	}
+	//ActorThatOpens = World->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -36,10 +45,9 @@ void UOpenDoor::openDoor()
 		doorClosing = false;
 		TargetAngle = OpenedAngle;
 	}
-
-	if (ActorThatBlocks != nullptr)
+	if (BP_Enabled)
 	{
-		ActorThatBlocks->SetActorEnableCollision(false);
+		OnOpenRequest.Broadcast();
 	}
 
 	LastOpenTime = World->GetTimeSeconds();
@@ -54,11 +62,10 @@ void UOpenDoor::closeDoor()
 		TargetAngle = ClosedAngle;
 	}
 
-	if (ActorThatBlocks != nullptr)
+	if (BP_Enabled)
 	{
-		ActorThatBlocks->SetActorEnableCollision(true);
+		OnCloseRequest.Broadcast();
 	}
-
 }
 
 bool UOpenDoor::isDoorClosed()
@@ -78,7 +85,29 @@ bool UOpenDoor::isTargetClose()
 
 bool UOpenDoor::isPlateTiggered()
 {
-	return PressurePlate->IsOverlappingActor(ActorThatOpens);
+	//Get total mass of actors on plate
+	//
+	return GetTotalMassOfActorsOnPlate() > TriggerMass;
+}
+
+float UOpenDoor::GetTotalMassOfActorsOnPlate()
+{
+
+	//Find all overlapping actors
+	//iterate through them adding their masses
+	TArray<AActor*> overlappingActors;
+	PressurePlate->GetOverlappingActors(overlappingActors);
+	float totalMass = 0;
+	for (const auto a : overlappingActors)
+	{
+		auto primitive = a->FindComponentByClass<UPrimitiveComponent>();
+		//UE_LOG(LogTemp, Warning, TEXT("Overlapped by %s"), *a->GetName());
+		totalMass += primitive->GetMass();
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("Total Mass %f"), totalMass);
+	return totalMass;
+
 }
 
 bool UOpenDoor::isTargetClose(float target)
@@ -116,20 +145,40 @@ bool UOpenDoor::rotateDoor(float deltaAngle)
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	AnimateDoor(DeltaTime);
-
-
-	//Poll trigger
-	//if the actor is in the volume open door.
-	if (isPlateTiggered())
+	
+	if (!PressurePlate)
 	{
-		openDoor();
+		return;
 	}
-	else if(CloseDelaySeconds + LastOpenTime < World->GetTimeSeconds())
+
+	if (BP_Enabled)
 	{
-		closeDoor();
+		if (isPlateTiggered())
+		{
+			openDoor();
+		}
+		else
+		{
+			closeDoor();
+		}
 	}
+	else
+	{
+		//Poll trigger
+		//if the actor is in the volume open door.
+		//UE_LOG(LogTemp, Warning, TEXT("Door trigger is %d by %s"), isPlateTiggered(), *ActorThatOpens->GetName());
+		if (isPlateTiggered())
+		{
+			openDoor();
+		}
+		else if (CloseDelaySeconds + LastOpenTime < World->GetTimeSeconds())
+		{
+			closeDoor();
+		}
+
+		AnimateDoor(DeltaTime);
+	}
+	
 
 	//FlapDoor();
 	

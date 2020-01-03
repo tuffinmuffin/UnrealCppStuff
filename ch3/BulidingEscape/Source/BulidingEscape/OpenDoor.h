@@ -7,6 +7,9 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseRequest);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -35,6 +38,7 @@ public:
 	bool isTargetClose(float target);
 	bool isTargetClose();
 	bool isPlateTiggered();
+	float GetTotalMassOfActorsOnPlate();
 
 private:
 	//user config params
@@ -48,19 +52,25 @@ private:
 	float DoorCloseRateSec = 75.0f;
 	UPROPERTY(EditAnywhere)
 	bool OpenClockwise;
-
+	UPROPERTY(EditAnywhere)
+	bool BP_Enabled = false;
+	
 	//Trigger items
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
-
-	UPROPERTY(VisibleAnywhere)
-	AActor* ActorThatOpens;
-
+	
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatBlocks;
+	float TriggerMass = 60;
 
 	UPROPERTY(EditAnywhere)
 	float CloseDelaySeconds = 1.0;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnOpenRequest OnOpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCloseRequest OnCloseRequest;
+	
 
 	//door rotation
 	bool doorOpening;
